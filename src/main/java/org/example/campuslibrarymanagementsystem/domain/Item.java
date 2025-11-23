@@ -1,4 +1,4 @@
-package org.example.campuslibrarymanagementsystem;
+package org.example.campuslibrarymanagementsystem.domain;
 
 public class Item {
     protected String isbn;

@@ -1,4 +1,4 @@
-import org.example.campuslibrarymanagementsystem.Item;
+package org.example.campuslibrarymanagementsystem.domain;
 
 public class EBook extends Item {
     public EBook(String isbn, String title) {

@@ -1,4 +1,4 @@
-package org.example.campuslibrarymanagementsystem;
+package org.example.campuslibrarymanagementsystem.domain;
 
 public class Person {
     private String id;

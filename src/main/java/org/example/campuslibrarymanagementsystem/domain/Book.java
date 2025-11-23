@@ -1,6 +1,6 @@
-package org.example.campuslibrarymanagementsystem;
+package org.example.campuslibrarymanagementsystem.domain;
 
-public class Book extends Item{
+public class Book extends Item implements Rentable {
     private int totalCopies;
     private int checkedOut;
 

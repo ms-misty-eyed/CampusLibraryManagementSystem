@@ -1,4 +1,4 @@
-package org.example.campuslibrarymanagementsystem;
+package org.example.campuslibrarymanagementsystem.domain;
 
 public interface Rentable {
     public boolean isAvailable();

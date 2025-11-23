@@ -1,6 +1,6 @@
-package org.example.campuslibrarymanagementsystem;
+package org.example.campuslibrarymanagementsystem.domain;
 
-public class Student extends Person{
+public class Student extends Person {
     private String program;
     private int year;
 
