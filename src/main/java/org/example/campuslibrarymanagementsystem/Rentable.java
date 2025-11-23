@@ -1,3 +1,5 @@
+package org.example.campuslibrarymanagementsystem;
+
 public interface Rentable {
     public boolean isAvailable();
     public void checkout();
