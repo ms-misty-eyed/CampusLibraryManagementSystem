@@ -1,6 +1,8 @@
 package org.example.campuslibrarymanagementsystem.domain;
 
-public class Student extends Person {
+import java.io.Serializable;
+
+public class Student extends Person implements Serializable {
     private String program;
     private int year;
 

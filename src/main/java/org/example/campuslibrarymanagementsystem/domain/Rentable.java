@@ -1,7 +1,7 @@
 package org.example.campuslibrarymanagementsystem.domain;
 
 public interface Rentable {
-    public boolean isAvailable();
-    public void checkout();
-    public void checkin();
+    boolean isAvailable();
+    void checkout();
+    void checkin();
 }

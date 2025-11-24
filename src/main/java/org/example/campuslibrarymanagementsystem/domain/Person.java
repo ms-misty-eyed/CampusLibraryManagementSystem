@@ -1,6 +1,8 @@
 package org.example.campuslibrarymanagementsystem.domain;
 
-public class Person {
+import java.io.Serializable;
+
+public abstract class Person implements Serializable{
     private String id;
     private String name;
     public Person(String id, String name){

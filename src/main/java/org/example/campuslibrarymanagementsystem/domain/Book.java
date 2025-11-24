@@ -7,6 +7,7 @@ public class Book extends Item implements Rentable {
     public Book (String isbn, String title, int totalCopies){
         super(isbn, title);
         this.totalCopies = totalCopies;
+        this.checkedOut = 0;
     }
 
     public boolean isAvailable(){
