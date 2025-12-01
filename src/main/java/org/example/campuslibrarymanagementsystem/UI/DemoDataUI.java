@@ -1,0 +1,128 @@
+package org.example.campuslibrarymanagementsystem.UI;
+
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import org.example.campuslibrarymanagementsystem.domain.Student;
+import org.example.campuslibrarymanagementsystem.service.LibraryService;
+import java.util.Optional;
+
+public class DemoDataUI {
+    private LibraryService service;
+    private BorderPane root;
+
+    public DemoDataUI(LibraryService service){
+        this.service = service;
+        this.root = new BorderPane();
+
+        //Build the graphic interface:
+        setUpMenuBar();
+        setUpTabs();
+    }
+
+    public BorderPane getRoot() {
+        return root;
+    }
+
+    public void setUpMenuBar(){
+        MenuBar menuBar = new MenuBar();
+
+        //File Menu
+        Menu fileMenu = new Menu("File");
+        MenuItem exitItem = new MenuItem("Exit");
+        exitItem.setOnAction(e-> System.exit(0));
+        fileMenu.getItems().add(exitItem);
+
+        //Student menu
+        Menu studentMenu = new Menu("Student");
+        MenuItem addStudentItem = new MenuItem("Add a student");
+        addStudentItem.setOnAction(e-> addStudent());
+        MenuItem listStudentsItem = new MenuItem("List students");
+        listStudentsItem.setOnAction(e-> listStudents());
+        studentMenu.getItems().addAll(addStudentItem, listStudentsItem);
+
+        //Book menu
+        Menu bookMenu = new Menu("Book");
+        MenuItem addBookItem = new MenuItem("Add a book");
+        addBookItem.setOnAction(e->addBook());
+        MenuItem listBooksItem = new MenuItem("List books");
+        listBooksItem.setOnAction(e-> listBooks());
+        bookMenu.getItems().addAll(addBookItem, listBooksItem);
+
+        //Rental menu
+        Menu rentalMenu = new Menu("Rental");
+        MenuItem rentBookItem = new MenuItem("Rent a book");
+        rentBookItem.setOnAction(e-> rentBook());
+        MenuItem returnBookItem = new MenuItem("Return a book");
+        returnBookItem.setOnAction(e-> renturnBook());
+        rentalMenu.getItems().addAll(rentBookItem,returnBookItem);
+
+        menuBar.getMenus().addAll(fileMenu, studentMenu, bookMenu, rentalMenu);
+        root.setTop(menuBar);
+    }
+
+    private void addStudent(){
+        Dialog<Student> dialogue = new Dialog<>();
+        dialogue.setTitle("Add a student");
+        dialogue.setHeaderText("Enter the student's information");
+
+        //Create the fields for the information
+        TextField idTextField = new TextField();
+        idTextField.setPromptText("Student id");
+        TextField nameField = new TextField();
+        nameField.setPromptText("Name");
+        TextField programTextField = new TextField();
+        programTextField.setPromptText("Program");
+        TextField yearOfStudyTextField = new TextField();
+        yearOfStudyTextField.setPromptText("Year of study");
+
+        //Layout the grid:
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.add(new Label("Student id: "),0,0);
+        grid.add(idTextField, 1,0);
+        grid.add(new Label("Name: "),0,1);
+        grid.add(nameField, 1,1);
+        grid.add(new Label("Program: "),0,2);
+        grid.add(programTextField, 1,2);
+        grid.add(new Label("Year of study:: "),0,3;
+        grid.add(yearOfStudyTextField, 1,3);
+
+        dialogue.getDialogPane().setContent(grid);
+
+        //Add ok button and cancel
+        ButtonType okButton = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialogue.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        //Convert result for when the ok button is clicked
+        dialogue.setResultConverter(button->{
+            try{
+                if(button == okButton){
+                    String id = idTextField.getText();
+                    String name = nameField.getText();
+                    String program = programTextField.getText();
+                    int yearOfStudy = Integer.parseInt(yearOfStudyTextField.getText());
+
+                    return new Student(id, name, program, yearOfStudy);
+                }
+            }catch(Exception e){
+                return null;
+            }
+            return null;
+        });
+
+        //Show dialogue and result
+        Optional<Student> result = dialogue.showAndWait();
+        if(result.isPresent() && result.get() != null){
+            service.getRegistry().addOrUpdateStudent(result.get());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Student added sucessfully");
+            alert.showAndWait();
+        }
+    }
+
+    public void setUpTabs(){
+        Tab tab = new Tab();
+    }
+}
