@@ -86,4 +86,48 @@ public class LibraryService {
         }
     }
 
+    public boolean returnBook(String studentId, String isbn) {
+        try {
+            //find the student using a thread running in the background
+            RecordMatcher matcher = new RecordMatcher(registry, studentId);
+            Future<Optional<Student>> future = pool.submit(matcher);
+            Optional<Student> studentOpt = future.get();
+
+            if (!studentOpt.isPresent()) {
+                System.out.println("Student was not found");
+                return false;
+            }
+            //find the book in the catalogue
+            Optional<Book> bookOpt = catalog.get(isbn);
+            if (!bookOpt.isPresent()) {
+                System.out.println("Book not fonud");
+                return false;
+            }
+            Book book = bookOpt.get();
+
+            //Acquire locks for catalogue and students
+            locks.catalogue().writeLock().lock();
+            locks.forStudent(studentId).writeLock().lock();
+
+            //check-in
+            try {
+                book.checkin();
+                catalog.add(book);
+
+                //Create a log entry
+                StudentFileLog log = new StudentFileLog(logsDir, studentId);
+                log.append(EventType.RETURN, isbn, book.getTitle());
+                return true;
+            } finally {
+                locks.catalogue().writeLock().unlock();
+                locks.forStudent(studentId).writeLock().unlock();
+            }
+
+
+        } catch (Exception e) {
+            System.out.println("Error returning the book: " + e.getMessage());
+            return false;
+        }
+    }
+
 }
