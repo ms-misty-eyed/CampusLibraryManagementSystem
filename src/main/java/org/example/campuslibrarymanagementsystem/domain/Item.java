@@ -2,7 +2,7 @@ package org.example.campuslibrarymanagementsystem.domain;
 
 import java.io.Serializable;
 
-public class Item implements Serializable{
+public abstract class Item implements Serializable{
     protected String isbn;
     protected String title;
 
