@@ -226,6 +226,31 @@ public class DemoDataUI {
     }
 
     public void setUpTabs(){
-        Tab tab = new Tab();
+        TabPane tabPane = new TabPane();
+
+        //Tab for student record
+        Tab studentTab= new Tab("Student Records");
+        studentTab.setClosable(false);
+        TextArea studentArea = new TextArea();
+        studentArea.setEditable(false);
+        studentTab.setContent(studentArea);
+
+        //Tab for book catalog
+        Tab bookTab = new Tab("Book Catalog");
+        bookTab.setClosable(false);
+        TextArea bookArea = new TextArea();
+        bookArea.setEditable(false);
+        bookTab.setContent(bookArea);
+
+        //Student Logs
+        Tab logTab = new Tab("Student Logs");
+        logTab.setClosable(false);
+        TextArea logArea = new TextArea();
+        logArea.setEditable(false);
+        logTab.setContent(logArea);
+
+        tabPane.getTabs().addAll(studentTab,bookTab,logTab);
+        root.setCenter(tabPane);
+
     }
 }
