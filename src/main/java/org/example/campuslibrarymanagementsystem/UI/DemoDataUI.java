@@ -3,6 +3,7 @@ package org.example.campuslibrarymanagementsystem.UI;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import org.example.campuslibrarymanagementsystem.domain.Book;
 import org.example.campuslibrarymanagementsystem.domain.Student;
 import org.example.campuslibrarymanagementsystem.service.LibraryService;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class DemoDataUI {
         MenuItem rentBookItem = new MenuItem("Rent a book");
         rentBookItem.setOnAction(e-> rentBook());
         MenuItem returnBookItem = new MenuItem("Return a book");
-        returnBookItem.setOnAction(e-> renturnBook());
+        returnBookItem.setOnAction(e-> returnBook());
         rentalMenu.getItems().addAll(rentBookItem,returnBookItem);
 
         menuBar.getMenus().addAll(fileMenu, studentMenu, bookMenu, rentalMenu);
@@ -86,7 +87,7 @@ public class DemoDataUI {
         grid.add(nameField, 1,1);
         grid.add(new Label("Program: "),0,2);
         grid.add(programTextField, 1,2);
-        grid.add(new Label("Year of study:: "),0,3;
+        grid.add(new Label("Year of study:: "),0,3);
         grid.add(yearOfStudyTextField, 1,3);
 
         dialogue.getDialogPane().setContent(grid);
@@ -118,6 +119,56 @@ public class DemoDataUI {
             service.getRegistry().addOrUpdateStudent(result.get());
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setContentText("Student added sucessfully");
+            alert.showAndWait();
+        }
+    }
+
+    private void addBook(){
+        Dialog<Book> dialog = new Dialog<>();
+        dialog.setTitle("Add Book");
+        dialog.setHeaderText("Enter Book Information");
+
+        TextField isbnField = new TextField();
+        isbnField.setPromptText("isbn");
+        TextField titleField = new TextField();
+        titleField.setPromptText("Title");
+        TextField copiesField = new TextField();
+        copiesField.setPromptText("Total copies");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.add(new Label("isbn: "), 0,0 );
+        grid.add(isbnField, 1, 0);
+        grid.add(new Label("Title: "),0,1);
+        grid.add(titleField,1,1);
+        grid.add(new Label("Total copies"),0,2);
+        grid.add(copiesField,1,2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType okButton = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        dialog.setResultConverter(button ->{
+            if(button == okButton){
+                try{
+                    String isbn = isbnField.getText();
+                    String title = titleField.getText();
+                    int totalCopies = Integer.parseInt(copiesField.getText());
+                    return new Book(isbn, title, totalCopies);
+                }catch(Exception e){
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        Optional<Book> result = dialog.showAndWait();
+        if(result.isPresent() && result.get() != null){
+            service.getCatalog().add(result.get());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Book was sucesfully added");
             alert.showAndWait();
         }
     }
