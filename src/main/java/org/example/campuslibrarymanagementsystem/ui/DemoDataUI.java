@@ -1,16 +1,25 @@
-package org.example.campuslibrarymanagementsystem.UI;
+package org.example.campuslibrarymanagementsystem.ui;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import org.example.campuslibrarymanagementsystem.domain.Book;
 import org.example.campuslibrarymanagementsystem.domain.Student;
 import org.example.campuslibrarymanagementsystem.service.LibraryService;
+import org.example.campuslibrarymanagementsystem.storage.StudentFileLog;
+
+import java.nio.file.Paths;
 import java.util.Optional;
 
 public class DemoDataUI {
     private LibraryService service;
     private BorderPane root;
+    private ListView<String> studentListView;
+    private ListView<String> bookListView;
+    private ListView<String> studentLogListView;
+    private TextArea logsArea;  // Store reference to logs area
+    private String currentStudentId;  // Track currently selected student
 
     public DemoDataUI(LibraryService service){
         this.service = service;
@@ -87,7 +96,7 @@ public class DemoDataUI {
         grid.add(nameField, 1,1);
         grid.add(new Label("Program: "),0,2);
         grid.add(programTextField, 1,2);
-        grid.add(new Label("Year of study:: "),0,3);
+        grid.add(new Label("Year of study: "),0,3);
         grid.add(yearOfStudyTextField, 1,3);
 
         dialogue.getDialogPane().setContent(grid);
@@ -117,8 +126,17 @@ public class DemoDataUI {
         Optional<Student> result = dialogue.showAndWait();
         if(result.isPresent() && result.get() != null){
             service.getRegistry().addOrUpdateStudent(result.get());
+
+            // Refresh all student lists
+            if (studentListView != null) {
+                refreshStudentList(studentListView);
+            }
+            if (studentLogListView != null) {
+                refreshStudentList(studentLogListView);
+            }
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Student added sucessfully");
+            alert.setContentText("Student added successfully");
             alert.showAndWait();
         }
     }
@@ -138,11 +156,11 @@ public class DemoDataUI {
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.add(new Label("isbn: "), 0,0 );
+        grid.add(new Label("ISBN: "), 0,0);
         grid.add(isbnField, 1, 0);
         grid.add(new Label("Title: "),0,1);
         grid.add(titleField,1,1);
-        grid.add(new Label("Total copies"),0,2);
+        grid.add(new Label("Total copies: "),0,2);
         grid.add(copiesField,1,2);
 
         dialog.getDialogPane().setContent(grid);
@@ -167,8 +185,14 @@ public class DemoDataUI {
         Optional<Book> result = dialog.showAndWait();
         if(result.isPresent() && result.get() != null){
             service.getCatalog().add(result.get());
+
+            // Refresh book list
+            if (bookListView != null) {
+                refreshBookList(bookListView);
+            }
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Book was sucesfully added");
+            alert.setContentText("Book was successfully added");
             alert.showAndWait();
         }
     }
@@ -185,72 +209,154 @@ public class DemoDataUI {
         java.util.Collection<Book> books = service.getCatalog().all();
         System.out.println("-----All Books -----");
         for(Book b : books){
-            System.out.println(b.getIsbn() + " " + b.getTitle() + "Available copies: " + (b.getTotalCopies() - b.getCheckedOut()) + "/" + b.getTotalCopies());
+            System.out.println(b.getIsbn() + " " + b.getTitle() + " Available copies: " + (b.getTotalCopies() - b.getCheckedOut()) + "/" + b.getTotalCopies());
         }
     }
 
     private void rentBook(){
         TextInputDialog studentDialog = new TextInputDialog();
-        studentDialog.setContentText("Student id: ");
+        studentDialog.setContentText("Student ID:");
         Optional<String> studentResult = studentDialog.showAndWait();
         if(!studentResult.isPresent()) return;
 
         TextInputDialog isbnDialog = new TextInputDialog();
-        isbnDialog.setContentText("Book isbn: ");
+        isbnDialog.setContentText("Book ISBN:");
         Optional<String> isbnResult = isbnDialog.showAndWait();
         if(!isbnResult.isPresent()) return;
 
-        boolean sucess = service.rentBook(studentResult.get(), isbnResult.get());
+        String studentId = studentResult.get();
+        boolean success = service.rentBook(studentId, isbnResult.get());
 
-        Alert alert = new Alert(sucess? Alert.AlertType.INFORMATION: Alert.AlertType.ERROR);
-        alert.setContentText(sucess? "Book rented sucessfully": "Book was not rented (error)");
+        // Refresh book list if successful
+        if (success && bookListView != null) {
+            refreshBookList(bookListView);
+        }
+
+        // Refresh logs if this is the currently selected student
+        if (success && currentStudentId != null && currentStudentId.equals(studentId) && logsArea != null) {
+            showStudentLogs(currentStudentId, logsArea);
+        }
+
+        Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+        alert.setContentText(success ? "Book rented successfully!" : "Failed to rent book");
         alert.showAndWait();
     }
 
     private void returnBook(){
         TextInputDialog studentDialog = new TextInputDialog();
-        studentDialog.setContentText("Student id: ");
+        studentDialog.setContentText("Student ID:");
         Optional<String> studentResult = studentDialog.showAndWait();
         if(!studentResult.isPresent()) return;
 
         TextInputDialog isbnDialog = new TextInputDialog();
-        isbnDialog.setContentText("Book isbn: ");
+        isbnDialog.setContentText("Book ISBN:");
         Optional<String> isbnResult = isbnDialog.showAndWait();
         if(!isbnResult.isPresent()) return;
 
-        boolean sucess = service.returnBook(studentResult.get(), isbnResult.get());
+        String studentId = studentResult.get();
+        boolean success = service.returnBook(studentId, isbnResult.get());
 
-        Alert alert = new Alert(sucess? Alert.AlertType.INFORMATION: Alert.AlertType.ERROR);
-        alert.setContentText(sucess? "Book returned sucessfully": "Book was not returned (error)");
+        // Refresh book list if successful
+        if (success && bookListView != null) {
+            refreshBookList(bookListView);
+        }
+
+        // Refresh logs if this is the currently selected student
+        if (success && currentStudentId != null && currentStudentId.equals(studentId) && logsArea != null) {
+            showStudentLogs(currentStudentId, logsArea);
+        }
+
+        Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+        alert.setContentText(success ? "Book returned successfully!" : "Failed to return book");
         alert.showAndWait();
     }
 
     public void setUpTabs(){
         TabPane tabPane = new TabPane();
 
-        //Tab for student record
-        Tab studentTab= new Tab("Student Records");
+        //Tab for student records
+        Tab studentTab = new Tab("Student Records");
         studentTab.setClosable(false);
-        TextArea studentArea = new TextArea();
-        studentArea.setEditable(false);
-        studentTab.setContent(studentArea);
+        studentListView = new ListView<>();
+        refreshStudentList(studentListView);
+
+        Button refreshStudentsBtn = new Button("Refresh");
+        refreshStudentsBtn.setOnAction(e -> refreshStudentList(studentListView));
+
+        VBox studentBox = new VBox(10, refreshStudentsBtn, studentListView);
+        studentTab.setContent(studentBox);
 
         //Tab for book catalog
         Tab bookTab = new Tab("Book Catalog");
         bookTab.setClosable(false);
-        TextArea bookArea = new TextArea();
-        bookArea.setEditable(false);
-        bookTab.setContent(bookArea);
+        bookListView = new ListView<>();
+        refreshBookList(bookListView);
 
-        //Student Logs
+        Button refreshBooksBtn = new Button("Refresh");
+        refreshBooksBtn.setOnAction(e -> refreshBookList(bookListView));
+
+        VBox bookBox = new VBox(10, refreshBooksBtn, bookListView);
+        bookTab.setContent(bookBox);
+
+        //Student Logs tab
         Tab logTab = new Tab("Student Logs");
         logTab.setClosable(false);
-        TextArea logArea = new TextArea();
-        logArea.setEditable(false);
-        logTab.setContent(logArea);
 
-        tabPane.getTabs().addAll(studentTab,bookTab,logTab);
+        studentLogListView = new ListView<>();
+        refreshStudentList(studentLogListView);
+
+        logsArea = new TextArea();  // Store reference
+        logsArea.setEditable(false);
+        logsArea.setPromptText("Select a student to view their rental logs");
+
+        studentLogListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                String studentId = newVal.split(" - ")[0];
+                currentStudentId = studentId;  // Track selected student
+                showStudentLogs(studentId, logsArea);
+            }
+        });
+
+        SplitPane splitPane = new SplitPane();
+        splitPane.getItems().addAll(studentLogListView, logsArea);
+        splitPane.setDividerPositions(0.3);
+        logTab.setContent(splitPane);
+
+        tabPane.getTabs().addAll(studentTab, bookTab, logTab);
         root.setCenter(tabPane);
+    }
 
+    private void refreshStudentList(ListView<String> listView) {
+        listView.getItems().clear();
+        java.util.List<Student> students = service.getRegistry().listAll();
+        for (Student s : students) {
+            listView.getItems().add(s.getId() + " - " + s.getName() +
+                    " (" + s.getProgram() + ", Year " + s.getYear() + ")");
+        }
+    }
+
+    private void refreshBookList(ListView<String> listView) {
+        listView.getItems().clear();
+        java.util.Collection<Book> books = service.getCatalog().all();
+        for (Book b : books) {
+            int available = b.getTotalCopies() - b.getCheckedOut();
+            listView.getItems().add(b.getIsbn() + " - " + b.getTitle() +
+                    " (Available: " + available + "/" + b.getTotalCopies() + ")");
+        }
+    }
+
+    private void showStudentLogs(String studentId, TextArea logsArea) {
+        try {
+            StudentFileLog log = new StudentFileLog(Paths.get("data/logs"), studentId);
+            java.util.List<String> logs = log.readAllPretty();
+
+            if (logs.isEmpty()) {
+                logsArea.setText("No rental history for this student.");
+            } else {
+                logsArea.setText(String.join("\n", logs));
+            }
+        } catch (Exception e) {
+            logsArea.setText("No logs found for this student.");
+        }
     }
 }

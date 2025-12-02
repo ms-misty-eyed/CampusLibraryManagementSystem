@@ -7,6 +7,7 @@ import org.example.campuslibrarymanagementsystem.storage.EventType;
 import org.example.campuslibrarymanagementsystem.storage.LibraryCatalog;
 import org.example.campuslibrarymanagementsystem.storage.StudentFileLog;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -19,6 +20,11 @@ public class LibraryService {
     private Locks locks;
 
     public LibraryService(Path dataDir) {
+        try {
+            Files.createDirectories(dataDir);
+        } catch (Exception e) {
+            System.out.println("Error creating directory: " + e.getMessage());
+        }
         this.logsDir = dataDir.resolve("logs");
         this.registry = new BinaryStudentRegistry(dataDir);
         this.catalog = new LibraryCatalog(dataDir);

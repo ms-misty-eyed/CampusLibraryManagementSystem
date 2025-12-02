@@ -13,6 +13,11 @@ public class StudentFileLog {
     private Path logFile;
 
     public StudentFileLog(Path logsDir, String studentId){
+        try {
+            Files.createDirectories(logsDir);  // Create logs directory if doesn't exist
+        } catch (Exception e) {
+            System.out.println("Error creating logs directory: " + e.getMessage());
+        }
         this.logFile = logsDir.resolve(studentId+ ".dat");
     }
 

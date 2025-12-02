@@ -12,6 +12,11 @@ public class BinaryStudentRegistry {
     private Map<String, Long> indexById;
 
     public BinaryStudentRegistry(Path baseDir){
+        try {
+            Files.createDirectories(baseDir);  // Create directory if doesn't exist
+        } catch (Exception e) {
+            System.out.println("Error creating directory: " + e.getMessage());
+        }
         this.dataFile = baseDir.resolve("students.dat");
         this.indexById = new HashMap<>();
         loadIndex();
