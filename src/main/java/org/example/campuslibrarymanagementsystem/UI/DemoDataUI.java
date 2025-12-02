@@ -173,6 +173,58 @@ public class DemoDataUI {
         }
     }
 
+    private void listStudents(){
+        java.util.List<Student> students = service.getRegistry().listAll();
+        System.out.println("-------All Students-------");
+        for(Student s: students){
+            System.out.println(s.getId() + " " + s.getName() + " " + s.getProgram() + " " + s.getYear());
+        }
+    }
+
+    private void listBooks(){
+        java.util.Collection<Book> books = service.getCatalog().all();
+        System.out.println("-----All Books -----");
+        for(Book b : books){
+            System.out.println(b.getIsbn() + " " + b.getTitle() + "Available copies: " + (b.getTotalCopies() - b.getCheckedOut()) + "/" + b.getTotalCopies());
+        }
+    }
+
+    private void rentBook(){
+        TextInputDialog studentDialog = new TextInputDialog();
+        studentDialog.setContentText("Student id: ");
+        Optional<String> studentResult = studentDialog.showAndWait();
+        if(!studentResult.isPresent()) return;
+
+        TextInputDialog isbnDialog = new TextInputDialog();
+        isbnDialog.setContentText("Book isbn: ");
+        Optional<String> isbnResult = isbnDialog.showAndWait();
+        if(!isbnResult.isPresent()) return;
+
+        boolean sucess = service.rentBook(studentResult.get(), isbnResult.get());
+
+        Alert alert = new Alert(sucess? Alert.AlertType.INFORMATION: Alert.AlertType.ERROR);
+        alert.setContentText(sucess? "Book rented sucessfully": "Book was not rented (error)");
+        alert.showAndWait();
+    }
+
+    private void returnBook(){
+        TextInputDialog studentDialog = new TextInputDialog();
+        studentDialog.setContentText("Student id: ");
+        Optional<String> studentResult = studentDialog.showAndWait();
+        if(!studentResult.isPresent()) return;
+
+        TextInputDialog isbnDialog = new TextInputDialog();
+        isbnDialog.setContentText("Book isbn: ");
+        Optional<String> isbnResult = isbnDialog.showAndWait();
+        if(!isbnResult.isPresent()) return;
+
+        boolean sucess = service.returnBook(studentResult.get(), isbnResult.get());
+
+        Alert alert = new Alert(sucess? Alert.AlertType.INFORMATION: Alert.AlertType.ERROR);
+        alert.setContentText(sucess? "Book returned sucessfully": "Book was not returned (error)");
+        alert.showAndWait();
+    }
+
     public void setUpTabs(){
         Tab tab = new Tab();
     }
