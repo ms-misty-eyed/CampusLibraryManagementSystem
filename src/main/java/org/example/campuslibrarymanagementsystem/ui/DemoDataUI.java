@@ -303,8 +303,6 @@ public class DemoDataUI {
         bookTableView.setTableMenuButtonVisible(false);
         bookTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-
-
         // ISBN Column
         TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
         isbnCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getIsbn()));
