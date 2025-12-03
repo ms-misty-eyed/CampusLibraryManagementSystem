@@ -300,6 +300,10 @@ public class DemoDataUI {
 
         // Create TableView for books
         TableView<Book> bookTableView = new TableView<>();
+        bookTableView.setTableMenuButtonVisible(false);
+        bookTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+
 
         // ISBN Column
         TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");

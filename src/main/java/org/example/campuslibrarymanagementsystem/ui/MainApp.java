@@ -9,13 +9,14 @@ import java.nio.file.Paths;
 
 public class MainApp extends Application {
     private LibraryService service;
-
     @Override
     public void start(Stage stage) throws Exception {
         this.service = new LibraryService(Paths.get("data"));
 
         DemoDataUI ui = new DemoDataUI(service);
-        Scene scene = new Scene(ui.getRoot(), 800, 600);
+        Scene scene = new Scene(ui.getRoot(), 800, 525);
+        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+
 
         stage.setTitle("Campus Library Management System");
         stage.setScene(scene);
