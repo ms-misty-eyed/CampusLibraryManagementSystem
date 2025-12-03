@@ -280,10 +280,14 @@ public class DemoDataUI {
         studentListView = new ListView<>();
         refreshStudentList(studentListView);
 
+        Button addStudentBtn = new Button("Add Student");
+        addStudentBtn.setOnAction(e -> addStudent());
+
         Button refreshStudentsBtn = new Button("Refresh");
         refreshStudentsBtn.setOnAction(e -> refreshStudentList(studentListView));
 
-        VBox studentBox = new VBox(10, refreshStudentsBtn, studentListView);
+        javafx.scene.layout.HBox studentButtons = new javafx.scene.layout.HBox(10, addStudentBtn, refreshStudentsBtn);
+        VBox studentBox = new VBox(10, studentListView, studentButtons);
         studentTab.setContent(studentBox);
 
         //Tab for book catalog
@@ -292,10 +296,14 @@ public class DemoDataUI {
         bookListView = new ListView<>();
         refreshBookList(bookListView);
 
+        Button addBookBtn = new Button("Add Book");
+        addBookBtn.setOnAction(e -> addBook());
+
         Button refreshBooksBtn = new Button("Refresh");
         refreshBooksBtn.setOnAction(e -> refreshBookList(bookListView));
 
-        VBox bookBox = new VBox(10, refreshBooksBtn, bookListView);
+        javafx.scene.layout.HBox bookButtons = new javafx.scene.layout.HBox(10, addBookBtn, refreshBooksBtn);
+        VBox bookBox = new VBox(10, bookListView, bookButtons);
         bookTab.setContent(bookBox);
 
         //Student Logs tab
