@@ -1,8 +1,10 @@
 package org.example.campuslibrarymanagementsystem.ui;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.example.campuslibrarymanagementsystem.domain.Book;
 import org.example.campuslibrarymanagementsystem.domain.Student;
@@ -286,24 +288,64 @@ public class DemoDataUI {
         Button refreshStudentsBtn = new Button("Refresh");
         refreshStudentsBtn.setOnAction(e -> refreshStudentList(studentListView));
 
-        javafx.scene.layout.HBox studentButtons = new javafx.scene.layout.HBox(10, addStudentBtn, refreshStudentsBtn);
+        // Center buttons at the bottom
+        HBox studentButtons = new HBox(10, addStudentBtn, refreshStudentsBtn);
+        studentButtons.setAlignment(javafx.geometry.Pos.CENTER);
         VBox studentBox = new VBox(10, studentListView, studentButtons);
         studentTab.setContent(studentBox);
 
-        //Tab for book catalog
+        //Tab for book catalog with TableView
         Tab bookTab = new Tab("Book Catalog");
         bookTab.setClosable(false);
-        bookListView = new ListView<>();
-        refreshBookList(bookListView);
+
+        // Create TableView for books
+        TableView<Book> bookTableView = new TableView<>();
+
+        // ISBN Column
+        TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
+        isbnCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getIsbn()));
+        isbnCol.setPrefWidth(150);
+
+        // Title Column
+        TableColumn<Book, String> titleCol = new TableColumn<>("Title");
+        titleCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTitle()));
+        titleCol.setPrefWidth(250);
+
+        // Total Copies Column
+        TableColumn<Book, String> totalCol = new TableColumn<>("Total");
+        totalCol.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getTotalCopies())));
+        totalCol.setPrefWidth(80);
+
+        // Checked Out Column
+        TableColumn<Book, String> checkedOutCol = new TableColumn<>("Checked Out");
+        checkedOutCol.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getCheckedOut())));
+        checkedOutCol.setPrefWidth(100);
+
+        // Available Column
+        TableColumn<Book, String> availableCol = new TableColumn<>("Available");
+        availableCol.setCellValueFactory(data -> {
+            Book book = data.getValue();
+            int available = book.getTotalCopies() - book.getCheckedOut();
+            return new SimpleStringProperty(available + "/" + book.getTotalCopies());
+        });
+        availableCol.setPrefWidth(100);
+
+        bookTableView.getColumns().addAll(isbnCol, titleCol, totalCol, checkedOutCol, availableCol);
+        refreshBookTable(bookTableView);
 
         Button addBookBtn = new Button("Add Book");
-        addBookBtn.setOnAction(e -> addBook());
+        addBookBtn.setOnAction(e -> {
+            addBook();
+            refreshBookTable(bookTableView);
+        });
 
         Button refreshBooksBtn = new Button("Refresh");
-        refreshBooksBtn.setOnAction(e -> refreshBookList(bookListView));
+        refreshBooksBtn.setOnAction(e -> refreshBookTable(bookTableView));
 
-        javafx.scene.layout.HBox bookButtons = new javafx.scene.layout.HBox(10, addBookBtn, refreshBooksBtn);
-        VBox bookBox = new VBox(10, bookListView, bookButtons);
+        // Center buttons at the bottom
+        HBox bookButtons = new javafx.scene.layout.HBox(10, addBookBtn, refreshBooksBtn);
+        bookButtons.setAlignment(javafx.geometry.Pos.CENTER);
+        VBox bookBox = new VBox(10, bookTableView, bookButtons);
         bookTab.setContent(bookBox);
 
         //Student Logs tab
@@ -313,14 +355,14 @@ public class DemoDataUI {
         studentLogListView = new ListView<>();
         refreshStudentList(studentLogListView);
 
-        logsArea = new TextArea();  // Store reference
+        logsArea = new TextArea();
         logsArea.setEditable(false);
         logsArea.setPromptText("Select a student to view their rental logs");
 
         studentLogListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 String studentId = newVal.split(" - ")[0];
-                currentStudentId = studentId;  // Track selected student
+                currentStudentId = studentId;
                 showStudentLogs(studentId, logsArea);
             }
         });
@@ -351,6 +393,11 @@ public class DemoDataUI {
             listView.getItems().add(b.getIsbn() + " - " + b.getTitle() +
                     " (Available: " + available + "/" + b.getTotalCopies() + ")");
         }
+    }
+    private void refreshBookTable(TableView<Book> tableView) {
+        tableView.getItems().clear();
+        java.util.Collection<Book> books = service.getCatalog().all();
+        tableView.getItems().addAll(books);
     }
 
     private void showStudentLogs(String studentId, TextArea logsArea) {
