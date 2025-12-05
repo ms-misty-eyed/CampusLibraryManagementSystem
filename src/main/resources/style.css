@@ -58,19 +58,23 @@
 
 /* Style for the individual tab headers */
 .tab-pane .tab-header-area .tab-header-background {
-    -fx-background-color: #e1ded4;
+    -fx-background-color: #f8f8f8;
+    -fx-text-fill: #ffffff;
 }
 
 /* Style for the selected tab */
 .tab-pane .tab:selected {
-    -fx-background-color: #f8f8f8; /* Highlighted tab background */
+    -fx-background-color: #9a0b0b; /* Highlighted tab background */
+}
+.tab-pane .tab-label{
+    -fx-text-fill: white;
 }
 .tab-pane .tab:selected .tab-label {
-    -fx-text-fill: #b10d0d; /* Red text for active tab */
+    -fx-text-fill: #ffffff; /* Red text for active tab */
     -fx-font-weight: bold;
 }
 .tab-pane .tab {
-    -fx-background-color: #e8e8e4;
+    -fx-background-color: #b10d0d;
     -fx-focus-color: transparent;
 }
 
@@ -109,7 +113,6 @@
 
 /* Text and font of the column headers */
 .table-view .column-header .label {
-    -fx-text-fill: #000000;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-alignment: CENTER; /* Align header text */
@@ -239,12 +242,14 @@
 /* Hover style for the top-level menu item */
 .menu-bar .menu:hover {
     -fx-background-color: #f4f3ef; /* Matches your darker row color */
+    -fx-font-weight: bold
 }
 
 /* Style for the text of the top-level menu when hovered or showing the dropdown */
 .menu-bar .menu:showing .label,
 .menu-bar .menu:hover .label {
     -fx-text-fill: #b10d0d; /* Primary Red text on hover/show */
+
 }
 
 

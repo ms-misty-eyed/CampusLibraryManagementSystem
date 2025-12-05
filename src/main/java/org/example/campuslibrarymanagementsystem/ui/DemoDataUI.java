@@ -345,7 +345,7 @@ public class DemoDataUI {
         refreshBooksBtn.setOnAction(e -> refreshBookTable(bookTableView));
 
         // Center buttons at the bottom
-        HBox bookButtons = new javafx.scene.layout.HBox(10, addBookBtn, refreshBooksBtn);
+        HBox bookButtons = new HBox(10, addBookBtn, refreshBooksBtn);
         bookButtons.setAlignment(javafx.geometry.Pos.CENTER);
         VBox bookBox = new VBox(10, bookTableView, bookButtons);
         bookTab.setContent(bookBox);
